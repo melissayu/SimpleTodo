@@ -1,6 +1,5 @@
 package com.melmel.android.simpletodo;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -49,12 +48,7 @@ public class MainActivity extends AppCompatActivity {
                         itemsAdapter.notifyDataSetChanged();
                         writeItems();
 
-                        Context context = getApplicationContext();
-                        CharSequence text = getString(R.string.item_deleted);
-                        int duration = Toast.LENGTH_SHORT;
-
-                        Toast toast = Toast.makeText(context, text, duration);
-                        toast.show();
+                        Toast.makeText(getApplicationContext(), R.string.item_deleted, Toast.LENGTH_SHORT).show();
 
                         return true;
                     }
@@ -115,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
             itemsAdapter.notifyDataSetChanged();
             writeItems();
 
-            Toast.makeText(this, item, Toast.LENGTH_SHORT).show();
+//            Toast.makeText(this, item, Toast.LENGTH_SHORT).show();
         }
     }
 
