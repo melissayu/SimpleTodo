@@ -1,8 +1,7 @@
 package com.melmel.android.simpletodo;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -23,6 +22,7 @@ public class MainActivity extends AppCompatActivity {
     ArrayAdapter<String> itemsAdapter;
     ListView lvItems;
 
+    private final int REQUEST_CODE = 20;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,12 +61,19 @@ public class MainActivity extends AppCompatActivity {
                 }
         );
 
-        // On short click, open dialog to edit item
+        // On short click, open edit page
         lvItems.setOnItemClickListener(
                 new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> adapter, View item, int pos, long id) {
 
+                        Intent i = new Intent(MainActivity.this, EditActivity.class);
+                        i.putExtra("pos", pos);
+                        String listItem = items.get(pos);
+                        i.putExtra("item", listItem);
+                        startActivityForResult(i, REQUEST_CODE);
+
+                        /* This is support for edit screen to be a dialog instead of new screen.
                         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                         final EditText input = new EditText(MainActivity.this);
                         final int position = pos;
@@ -86,12 +93,30 @@ public class MainActivity extends AppCompatActivity {
 
                         AlertDialog dialog = builder.create();
                         dialog.show();
+                        */
 
                         return;
                     }
                 }
         );
 
+    }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // REQUEST_CODE is defined above
+        if (resultCode == RESULT_OK && requestCode == REQUEST_CODE) {
+
+            String item = data.getExtras().getString("item");
+            int pos = data.getExtras().getInt("pos", 0);
+
+            items.set(pos, item);
+            itemsAdapter.notifyDataSetChanged();
+            writeItems();
+
+            Toast.makeText(this, item, Toast.LENGTH_SHORT).show();
+        }
     }
 
     public void onAddItem(View v) {
