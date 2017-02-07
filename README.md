@@ -35,6 +35,8 @@ Here's a walkthrough of implemented user stories:
 
 Gif direct link if above doesn't work: https://dl.dropboxusercontent.com/u/3465192/2017_02_06_20_27_09.gif
 
+Updated gif with edit as modal: https://dl.dropboxusercontent.com/u/3465192/2017_02_06_22_40_06.gif
+
 Video link in case gif doesn't work: https://www.youtube.com/watch?v=SN6TMG9N5vc
 
 ## Notes

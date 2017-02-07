@@ -1,7 +1,9 @@
 package com.melmel.android.simpletodo;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
@@ -61,13 +63,16 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onItemClick(AdapterView<?> adapter, View item, int pos, long id) {
 
+
+                        /* This is support for edit screen to be a new activity instead of dialog.
                         Intent i = new Intent(MainActivity.this, EditActivity.class);
                         i.putExtra("pos", pos);
                         String listItem = items.get(pos);
                         i.putExtra("item", listItem);
                         startActivityForResult(i, REQUEST_CODE);
+                        */
 
-                        /* This is support for edit screen to be a dialog instead of new screen.
+                        /* This is support for edit screen to be a dialog instead of new screen. */
                         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                         final EditText input = new EditText(MainActivity.this);
                         final int position = pos;
@@ -87,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
 
                         AlertDialog dialog = builder.create();
                         dialog.show();
-                        */
+
 
                         return;
                     }
