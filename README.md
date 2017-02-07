@@ -4,7 +4,7 @@ Melissa's Todo App is an android app that allows building a todo list and basic 
 
 Submitted by: Melissa Yu
 
-Time spent: **X** hours spent in total
+Time spent: 3 hours spent in total
 
 ## User Stories
 
@@ -31,17 +31,19 @@ The following **additional** features are implemented:
 
 Here's a walkthrough of implemented user stories:
 
-<img src='http://i.imgur.com/link/to/your/gif/file.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' />
+<img src='https://dl.dropboxusercontent.com/u/3465192/2017_02_06_20_27_09.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' />
 
-GIF created with [LiceCap](http://www.cockos.com/licecap/).
+Video link in case gif doesn't work: https://www.youtube.com/watch?v=SN6TMG9N5vc
 
 ## Notes
 
-Describe any challenges encountered while building the app.
+Trying to capture video and upload the gif was harder than making the app! I have trouble running the emulator on this computer so it was captured on the actual device.
+
+Work in progress - may update with new features.
 
 ## License
 
-    Copyright [yyyy] [name of copyright owner]
+    Copyright 2017 Melissa Yu
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
