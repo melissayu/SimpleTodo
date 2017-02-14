@@ -1,7 +1,6 @@
 package com.melmel.android.simpletodo;
 
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -12,15 +11,13 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import org.apache.commons.io.FileUtils;
+import com.raizlabs.android.dbflow.sql.language.SQLite;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
-    ArrayList<String> items;
-    ArrayAdapter<String> itemsAdapter;
+    ArrayList<Task> tasks;
+    ArrayAdapter<Task> taskItemsAdapter;
     ListView lvItems;
 
     private final int REQUEST_CODE = 20;
@@ -34,8 +31,9 @@ public class MainActivity extends AppCompatActivity {
 
         readItems();
 
-        itemsAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, items);
-        lvItems.setAdapter(itemsAdapter);
+        taskItemsAdapter = new TaskAdapter(this, tasks);
+        lvItems.setAdapter(taskItemsAdapter);
+
         setupListViewListener();
     }
 
@@ -46,9 +44,14 @@ public class MainActivity extends AppCompatActivity {
                 new AdapterView.OnItemLongClickListener() {
                     @Override
                     public boolean onItemLongClick(AdapterView<?> adapter, View item, int pos, long id) {
-                        items.remove(pos);
-                        itemsAdapter.notifyDataSetChanged();
-                        writeItems();
+                        Task t = tasks.get(pos);
+                        tasks.remove(pos);
+                        taskItemsAdapter.notifyDataSetChanged();
+                        Task task = SQLite.select()
+                                .from(Task.class)
+                                .where(Task_Table.description.eq(t.description))
+                                .querySingle();
+                        task.delete();
 
                         Toast.makeText(getApplicationContext(), R.string.item_deleted, Toast.LENGTH_SHORT).show();
 
@@ -76,16 +79,19 @@ public class MainActivity extends AppCompatActivity {
                         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                         final EditText input = new EditText(MainActivity.this);
                         final int position = pos;
-                        String listItem = items.get(position);
-                        input.setText(listItem);
+                        Task t = tasks.get(position);
+                        input.setText(t.toString());
                         builder.setTitle(R.string.edit_item)
                                 .setView(input)
                                 .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int id) {
-                                        items.set(position, input.getText().toString());
-                                        itemsAdapter.notifyDataSetChanged();
-                                        writeItems();
+                                        String taskDesc = input.getText().toString();
+                                        Task t = tasks.get(position);
+                                        t.setDescription(taskDesc);
+                                        t.save();
+                                        tasks.set(position, t);
+                                        taskItemsAdapter.notifyDataSetChanged();
                                         return;
                                     }
                                 });
@@ -101,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-
+/*
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         // REQUEST_CODE is defined above
@@ -111,40 +117,34 @@ public class MainActivity extends AppCompatActivity {
             int pos = data.getExtras().getInt("pos", 0);
 
             items.set(pos, item);
-            itemsAdapter.notifyDataSetChanged();
-            writeItems();
+            taskItemsAdapter.notifyDataSetChanged();
+            writeItems(item);
 
 //            Toast.makeText(this, item, Toast.LENGTH_SHORT).show();
         }
     }
-
+*/
     public void onAddItem(View v) {
         EditText etNewItem = (EditText) findViewById(R.id.etNewItem);
         String itemText = etNewItem.getText().toString();
-        itemsAdapter.add(itemText);
+        Task t = new Task();
+        t.setDescription(itemText);
+        taskItemsAdapter.add(t);
         etNewItem.setText("");
 
-        writeItems();
+        writeItems(itemText);
     }
 
     private void readItems() {
-        File filesDir = getFilesDir();
-        File todoFile = new File(filesDir, "todo.txt");
-        try {
-            items = new ArrayList<String>(FileUtils.readLines(todoFile));
-        }  catch (IOException e) {
-            items = new ArrayList<String>();
-        }
+        tasks = (ArrayList<Task>)SQLite.select().
+                from(Task.class).queryList();
+
     }
 
-    private void writeItems() {
-        File filesDir = getFilesDir();
-        File todoFile = new File(filesDir, "todo.txt");
-        try {
-            FileUtils.writeLines(todoFile, items);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    private void writeItems(String taskDesc) {
+        Task newTask = new Task();
+        newTask.setDescription(taskDesc);
+        newTask.save();
     }
 
 

@@ -4,7 +4,7 @@ Melissa's Todo App is an android app that allows building a todo list and basic 
 
 Submitted by: Melissa Yu
 
-Time spent: 4 hours spent in total
+Time spent: 6 hours spent in total
 
 ## User Stories
 
@@ -16,8 +16,8 @@ The following **required** functionality is completed:
 
 The following **optional** features are implemented:
 
-* [ ] Persist the todo items [into SQLite](http://guides.codepath.com/android/Persisting-Data-to-the-Device#sqlite) instead of a text file
-* [ ] Improve style of the todo items in the list [using a custom adapter](http://guides.codepath.com/android/Using-an-ArrayAdapter-with-ListView)
+* [x] Persist the todo items [into SQLite](http://guides.codepath.com/android/Persisting-Data-to-the-Device#sqlite) instead of a text file
+* [x] Improve style of the todo items in the list [using a custom adapter](http://guides.codepath.com/android/Using-an-ArrayAdapter-with-ListView)
 * [ ] Add support for completion due dates for todo items (and display within listview item)
 * [x] Use a [DialogFragment](http://guides.codepath.com/android/Using-DialogFragment) instead of new Activity for editing items
 * [ ] Add support for selecting the priority of each todo item (and display in listview item)
@@ -43,7 +43,7 @@ Video link in case gif doesn't work: https://www.youtube.com/watch?v=SN6TMG9N5vc
 
 Trying to capture video and upload the gif was harder than making the app! I have trouble running the emulator on this computer so it was captured on the actual device.
 
-Work in progress - may update with new features.
+Updated to use SQLite DB and custom adapter to display the list.
 
 ## License
 
