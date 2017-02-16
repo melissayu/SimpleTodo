@@ -31,10 +31,14 @@ public class TaskAdapter extends ArrayAdapter<Task> {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.item_task, parent, false);
         }
         // Lookup view for data population
+        TextView taskTitle = (TextView) convertView.findViewById(R.id.taskTitle);
         TextView taskDesc = (TextView) convertView.findViewById(R.id.taskDesc);
+        TextView taskDueDate = (TextView) convertView.findViewById(R.id.due_date);
         // Populate the data into the template view using the data object
 
         taskDesc.setText(task.description);
+        taskTitle.setText(task.title);
+        taskDueDate.setText(task.dueDate);
         // Return the completed view to render on screen
         return convertView;
     }

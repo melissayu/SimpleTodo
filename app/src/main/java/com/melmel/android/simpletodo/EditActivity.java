@@ -18,7 +18,7 @@ public class EditActivity extends AppCompatActivity {
         pos = getIntent().getIntExtra("pos", 0);
 
 
-        editItemText = (EditText) findViewById(R.id.editItemText);
+        editItemText = (EditText) findViewById(R.id.editItemTitle);
         editItemText.setText(item);
     }
 

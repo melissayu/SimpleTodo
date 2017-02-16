@@ -1,19 +1,25 @@
 package com.melmel.android.simpletodo;
 
-import android.content.DialogInterface;
+import android.app.Dialog;
 import android.os.Bundle;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 
 public class MainActivity extends AppCompatActivity {
     ArrayList<Task> tasks;
@@ -76,29 +82,47 @@ public class MainActivity extends AppCompatActivity {
                         */
 
                         /* This is support for edit screen to be a dialog instead of new screen. */
-                        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                        final EditText input = new EditText(MainActivity.this);
+
+                        final Dialog dialog = new Dialog(MainActivity.this);
+                        dialog.setContentView(R.layout.dialog_edit);
+                        dialog.setTitle("Edit Task");
                         final int position = pos;
                         Task t = tasks.get(position);
-                        input.setText(t.toString());
-                        builder.setTitle(R.string.edit_item)
-                                .setView(input)
-                                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int id) {
-                                        String taskDesc = input.getText().toString();
-                                        Task t = tasks.get(position);
-                                        t.setDescription(taskDesc);
-                                        t.save();
-                                        tasks.set(position, t);
-                                        taskItemsAdapter.notifyDataSetChanged();
-                                        return;
-                                    }
-                                });
 
-                        AlertDialog dialog = builder.create();
+                        final EditText titleText = (EditText) dialog.findViewById(R.id.dialogEditTitle);
+                        titleText.setText(t.title);
+                        final EditText descText = (EditText) dialog.findViewById(R.id.dialogEditDesc);
+                        descText.setText(t.description);
+
+                        final DatePicker dueDate = (DatePicker) dialog.findViewById(R.id.dialogDatePicker);
+                        String dateString = t.dueDate;
+                        if (dateString != null) {
+                            Date parsedDate = parseDateString(dateString);
+                            Calendar calendar = new GregorianCalendar();
+                            calendar.setTime(parsedDate);
+                            dueDate.updateDate(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
+                        }
+
+                        Button dialogButton = (Button) dialog.findViewById(R.id.dialogSave);
+                        dialogButton.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                String taskTitle = titleText.getText().toString();
+                                String taskDesc = descText.getText().toString();
+                                String taskDueDate = datePickerToString(dueDate);
+
+                                Task t = tasks.get(position);
+                                t.setTitle(taskTitle);
+                                t.setDescription(taskDesc);
+                                t.setDueDate(taskDueDate);
+                                t.save();
+                                tasks.set(position, t);
+                                taskItemsAdapter.notifyDataSetChanged();
+                                dialog.dismiss();
+                            }
+                        });
+
                         dialog.show();
-
 
                         return;
                     }
@@ -124,26 +148,78 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 */
-    public void onAddItem(View v) {
-        EditText etNewItem = (EditText) findViewById(R.id.etNewItem);
-        String itemText = etNewItem.getText().toString();
-        Task t = new Task();
-        t.setDescription(itemText);
-        taskItemsAdapter.add(t);
-        etNewItem.setText("");
 
-        writeItems(itemText);
+    private Date parseDateString(String date) {
+        SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy");
+        sdf.setLenient(false);
+        Date parsedDate = new Date();
+        try {
+            parsedDate = sdf.parse(date);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return parsedDate;
+    }
+    private String datePickerToString(DatePicker datePicker){
+        int   day  = datePicker.getDayOfMonth();
+        int   month= datePicker.getMonth();
+        int   year = datePicker.getYear();
+
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.YEAR, year);
+        cal.set(Calendar.MONTH, month);
+        cal.set(Calendar.DAY_OF_MONTH, day);
+        Date dateRepresentation = cal.getTime();
+
+        SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy");
+        String formattedDate = sdf.format(dateRepresentation);
+
+        return formattedDate;
+    }
+
+    public void onAddItem(View v) {
+        final Dialog dialog = new Dialog(MainActivity.this);
+        dialog.setContentView(R.layout.dialog_edit);
+        dialog.setTitle("Add New Task");
+
+        final EditText titleText = (EditText) dialog.findViewById(R.id.dialogEditTitle);
+        final EditText descText = (EditText) dialog.findViewById(R.id.dialogEditDesc);
+        final DatePicker dueDate = (DatePicker) dialog.findViewById(R.id.dialogDatePicker);
+
+        Button dialogButton = (Button) dialog.findViewById(R.id.dialogSave);
+        dialogButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String taskTitle = titleText.getText().toString();
+                String taskDesc = descText.getText().toString();
+                Task t = new Task();
+                t.setTitle(taskTitle);
+                t.setDescription(taskDesc);
+                t.setDueDate(datePickerToString(dueDate));
+                t.save();
+                tasks.add(t);
+                taskItemsAdapter.notifyDataSetChanged();
+                dialog.dismiss();
+            }
+        });
+
+        dialog.show();
+
     }
 
     private void readItems() {
         tasks = (ArrayList<Task>)SQLite.select().
                 from(Task.class).queryList();
+//        tasks = (ArrayList<Task>)SQLite.select().
+//                from(Task.class).orderBy(Task_Table.priority, true).queryList();
 
     }
 
-    private void writeItems(String taskDesc) {
+    private void writeItems(String taskTitle, String taskDesc, String dueDate) {
         Task newTask = new Task();
+        newTask.setTitle(taskTitle);
         newTask.setDescription(taskDesc);
+        newTask.setDueDate(dueDate);
         newTask.save();
     }
 

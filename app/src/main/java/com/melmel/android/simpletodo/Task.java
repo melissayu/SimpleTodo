@@ -20,16 +20,35 @@ public class Task extends BaseModel {
     @Column
     String description;
 
-//    @Column
-//    int priority;
+    @Column
+    String title;
+
+    @Column
+    int priority;
+
+    @Column
+    String dueDate;
 
     @Override
     public String toString() {
         return this.description;
     }
 
+    public final static int PRIORITY_HIGH = 3;
+    public final static int PRIORITY_MEDIUM = 2;
+    public final static int PRIORITY_LOW = 1;
+
     public void setDescription(String desc) {
         this.description = desc;
+    }
+    public void setTitle(String title) {
+        this.title = title;
+    }
+    public void setDueDate(String dueDate) {
+        this.dueDate = dueDate;
+    }
+    public void setPriority(String dueDate) {
+        this.dueDate = dueDate;
     }
 
     public void setId(int id) {
