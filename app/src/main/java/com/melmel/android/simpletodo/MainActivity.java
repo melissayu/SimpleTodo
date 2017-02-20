@@ -34,6 +34,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     ArrayAdapter<Task> taskItemsAdapter;
     ListView lvItems;
     int priorityLevel;
+    String currentSortBy;
 
     private final int REQUEST_CODE = 20;
 
@@ -60,6 +61,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(dataAdapter);
         spinner.setOnItemSelectedListener(this);
+        currentSortBy = sortBy.get(0);
 
         setupListViewListener();
     }
@@ -68,17 +70,16 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         // On selecting a spinner item
         String item = parent.getItemAtPosition(position).toString();
-        sortTasksBy(item);
-        // Showing selected spinner item
-        Toast.makeText(parent.getContext(), "Selected: " + item, Toast.LENGTH_LONG).show();
+        currentSortBy = item;
+        sortTasks();
     }
 
     public void onNothingSelected(AdapterView<?> arg0) {
         // TODO Auto-generated method stub
     }
 
-    private void sortTasksBy(String sortByField) {
-        if (sortByField == "Due Date") {
+    private void sortTasks() {
+        if (currentSortBy == "Due Date") {
             Collections.sort(tasks, new Comparator<Task>() {
                 @Override
                 public int compare(Task o1, Task o2) {
@@ -86,7 +87,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 }
             });
         }
-        else if (sortByField == "Priority") {
+        else if (currentSortBy == "Priority") {
             Collections.sort(tasks, new Comparator<Task>() {
                 @Override
                 public int compare(Task o1, Task o2) {
@@ -94,7 +95,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 }
             });
         }
-        else if (sortByField == "Name") {
+        else if (currentSortBy == "Name") {
             Collections.sort(tasks, new Comparator<Task>() {
                 @Override
                 public int compare(Task o1, Task o2) {
@@ -103,7 +104,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             });
         }
         taskItemsAdapter.notifyDataSetChanged();
-
     }
 
     private void setupListViewListener() {
@@ -115,7 +115,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     public boolean onItemLongClick(AdapterView<?> adapter, View item, int pos, long id) {
                         Task t = tasks.get(pos);
                         tasks.remove(pos);
-                        taskItemsAdapter.notifyDataSetChanged();
+//                        taskItemsAdapter.notifyDataSetChanged();
+                        sortTasks();
                         Task task = SQLite.select()
                                 .from(Task.class)
                                 .where(Task_Table.description.eq(t.description))
@@ -195,7 +196,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                                 t.setPriority(priorityLevel);
                                 t.save();
                                 tasks.set(position, t);
-                                taskItemsAdapter.notifyDataSetChanged();
+//                                taskItemsAdapter.notifyDataSetChanged();
+                                sortTasks();
                                 dialog.dismiss();
                             }
                         });
@@ -279,7 +281,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 t.setPriority(priorityLevel);
                 t.save();
                 tasks.add(t);
-                taskItemsAdapter.notifyDataSetChanged();
+//                taskItemsAdapter.notifyDataSetChanged();
+                sortTasks();
                 dialog.dismiss();
             }
         });
