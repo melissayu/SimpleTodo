@@ -4,7 +4,7 @@ Melissa's Todo App is an android app that allows building a todo list and basic 
 
 Submitted by: Melissa Yu
 
-Time spent: 9 hours spent in total
+Time spent: 13 hours spent in total
 
 ## User Stories
 
@@ -20,7 +20,7 @@ The following **optional** features are implemented:
 * [x] Improve style of the todo items in the list [using a custom adapter](http://guides.codepath.com/android/Using-an-ArrayAdapter-with-ListView)
 * [x] Add support for completion due dates for todo items (and display within listview item)
 * [x] Use a [DialogFragment](http://guides.codepath.com/android/Using-DialogFragment) instead of new Activity for editing items
-* [ ] Add support for selecting the priority of each todo item (and display in listview item)
+* [x] Add support for selecting the priority of each todo item (and display in listview item)
 * [x] Tweak the style improving the UI / UX, play with colors, images or backgrounds
 
 The following **additional** features are implemented:
@@ -28,6 +28,9 @@ The following **additional** features are implemented:
 * [x] List anything else that you can get done to improve the app functionality!
 * Added a Description field to add details for each task
 * Added new launcher icon
+* Added a Priority field to each item (high, medium, low) and shown by an icon on the list view
+* Ability to sort the list by due date, priority, or title of task.
+* Improve the UI of the "Sort by" spinner above the list, added an empty list message if there are no items.
 
 ## Video Walkthrough 
 
