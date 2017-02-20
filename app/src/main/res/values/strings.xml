@@ -3,4 +3,9 @@
     <string name="ok">OK</string>
     <string name="edit_item">Edit Item</string>
     <string name="item_deleted">Item deleted</string>
+    <string-array name="planets_array">
+        <item>Due Date</item>
+        <item>Priority</item>
+        <item>Name</item>
+    </string-array>
 </resources>

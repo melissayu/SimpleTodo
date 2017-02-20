@@ -2,6 +2,7 @@ package com.melmel.android.simpletodo;
 
 import android.app.Dialog;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
@@ -9,22 +10,30 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+import static com.melmel.android.simpletodo.Task.datePickerToString;
+import static com.melmel.android.simpletodo.Task.parseDateString;
+import static com.raizlabs.android.dbflow.config.FlowManager.getContext;
+
+public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
     ArrayList<Task> tasks;
     ArrayAdapter<Task> taskItemsAdapter;
     ListView lvItems;
+    int priorityLevel;
 
     private final int REQUEST_CODE = 20;
 
@@ -34,13 +43,67 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         lvItems = (ListView)findViewById(R.id.lvItems);
+        lvItems.setEmptyView(findViewById(R.id.empty_list_view));
 
         readItems();
 
         taskItemsAdapter = new TaskAdapter(this, tasks);
         lvItems.setAdapter(taskItemsAdapter);
 
+        Spinner spinner = (Spinner) findViewById(R.id.spinner);
+        List<String> sortBy = new ArrayList<String>();
+        sortBy.add("Due Date");
+        sortBy.add("Priority");
+        sortBy.add("Name");
+
+        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, sortBy);
+        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(dataAdapter);
+        spinner.setOnItemSelectedListener(this);
+
         setupListViewListener();
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        // On selecting a spinner item
+        String item = parent.getItemAtPosition(position).toString();
+        sortTasksBy(item);
+        // Showing selected spinner item
+        Toast.makeText(parent.getContext(), "Selected: " + item, Toast.LENGTH_LONG).show();
+    }
+
+    public void onNothingSelected(AdapterView<?> arg0) {
+        // TODO Auto-generated method stub
+    }
+
+    private void sortTasksBy(String sortByField) {
+        if (sortByField == "Due Date") {
+            Collections.sort(tasks, new Comparator<Task>() {
+                @Override
+                public int compare(Task o1, Task o2) {
+                    return Task.parseDateString(o1.dueDate).compareTo(Task.parseDateString(o2.dueDate));
+                }
+            });
+        }
+        else if (sortByField == "Priority") {
+            Collections.sort(tasks, new Comparator<Task>() {
+                @Override
+                public int compare(Task o1, Task o2) {
+                    return o2.priority - o1.priority;
+                }
+            });
+        }
+        else if (sortByField == "Name") {
+            Collections.sort(tasks, new Comparator<Task>() {
+                @Override
+                public int compare(Task o1, Task o2) {
+                    return o1.title.compareTo(o2.title);
+                }
+            });
+        }
+        taskItemsAdapter.notifyDataSetChanged();
+
     }
 
     private void setupListViewListener() {
@@ -103,6 +166,20 @@ public class MainActivity extends AppCompatActivity {
                             dueDate.updateDate(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
                         }
 
+                        final ImageButton priorityLevelButton = (ImageButton) dialog.findViewById(R.id.dialogPriority);
+
+                        //If no priority had been set, default to LOW
+                        priorityLevel = t.priority == 0 ? Task.PRIORITY_LOW : t.priority;
+                        updatePriorityImage(priorityLevelButton);
+
+                        priorityLevelButton.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                changePriorityLevel();
+                                updatePriorityImage(priorityLevelButton);
+                            }
+                        });
+
                         Button dialogButton = (Button) dialog.findViewById(R.id.dialogSave);
                         dialogButton.setOnClickListener(new View.OnClickListener() {
                             @Override
@@ -115,6 +192,7 @@ public class MainActivity extends AppCompatActivity {
                                 t.setTitle(taskTitle);
                                 t.setDescription(taskDesc);
                                 t.setDueDate(taskDueDate);
+                                t.setPriority(priorityLevel);
                                 t.save();
                                 tasks.set(position, t);
                                 taskItemsAdapter.notifyDataSetChanged();
@@ -149,32 +227,23 @@ public class MainActivity extends AppCompatActivity {
     }
 */
 
-    private Date parseDateString(String date) {
-        SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy");
-        sdf.setLenient(false);
-        Date parsedDate = new Date();
-        try {
-            parsedDate = sdf.parse(date);
-        } catch (ParseException e) {
-            e.printStackTrace();
+    private void changePriorityLevel() {
+        if (priorityLevel == Task.PRIORITY_LOW) {
+            priorityLevel =  Task.PRIORITY_MEDIUM;
+        } else if (priorityLevel == Task.PRIORITY_MEDIUM) {
+            priorityLevel = Task.PRIORITY_HIGH;
+        } else if (priorityLevel == Task.PRIORITY_HIGH) {
+            priorityLevel = Task.PRIORITY_LOW;
+        } else {
+            priorityLevel = Task.PRIORITY_LOW; //If no value or invalid value was set, default to LOW
         }
-        return parsedDate;
     }
-    private String datePickerToString(DatePicker datePicker){
-        int   day  = datePicker.getDayOfMonth();
-        int   month= datePicker.getMonth();
-        int   year = datePicker.getYear();
 
-        Calendar cal = Calendar.getInstance();
-        cal.set(Calendar.YEAR, year);
-        cal.set(Calendar.MONTH, month);
-        cal.set(Calendar.DAY_OF_MONTH, day);
-        Date dateRepresentation = cal.getTime();
-
-        SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy");
-        String formattedDate = sdf.format(dateRepresentation);
-
-        return formattedDate;
+    private void updatePriorityImage(ImageButton priorityButton) {
+        if (priorityLevel == Task.PRIORITY_LOW) priorityButton.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.lowPriorityIcon));
+        else if (priorityLevel == Task.PRIORITY_MEDIUM) priorityButton.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.medPriorityIcon));
+        else if (priorityLevel == Task.PRIORITY_HIGH) priorityButton.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.highPriorityIcon));
+        else priorityButton.setImageResource(android.R.drawable.btn_star);
     }
 
     public void onAddItem(View v) {
@@ -185,6 +254,17 @@ public class MainActivity extends AppCompatActivity {
         final EditText titleText = (EditText) dialog.findViewById(R.id.dialogEditTitle);
         final EditText descText = (EditText) dialog.findViewById(R.id.dialogEditDesc);
         final DatePicker dueDate = (DatePicker) dialog.findViewById(R.id.dialogDatePicker);
+        final ImageButton priorityLevelButton = (ImageButton) dialog.findViewById(R.id.dialogPriority);
+        priorityLevel = Task.PRIORITY_LOW;
+        updatePriorityImage(priorityLevelButton);
+
+        priorityLevelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                changePriorityLevel();
+                updatePriorityImage(priorityLevelButton);
+            }
+        });
 
         Button dialogButton = (Button) dialog.findViewById(R.id.dialogSave);
         dialogButton.setOnClickListener(new View.OnClickListener() {
@@ -195,7 +275,8 @@ public class MainActivity extends AppCompatActivity {
                 Task t = new Task();
                 t.setTitle(taskTitle);
                 t.setDescription(taskDesc);
-                t.setDueDate(datePickerToString(dueDate));
+                t.setDueDate(Task.datePickerToString(dueDate));
+                t.setPriority(priorityLevel);
                 t.save();
                 tasks.add(t);
                 taskItemsAdapter.notifyDataSetChanged();

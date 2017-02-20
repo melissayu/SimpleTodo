@@ -1,10 +1,12 @@
 package com.melmel.android.simpletodo;
 
 import android.content.Context;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -34,13 +36,24 @@ public class TaskAdapter extends ArrayAdapter<Task> {
         TextView taskTitle = (TextView) convertView.findViewById(R.id.taskTitle);
         TextView taskDesc = (TextView) convertView.findViewById(R.id.taskDesc);
         TextView taskDueDate = (TextView) convertView.findViewById(R.id.due_date);
+        ImageView taskPriorityIcon = (ImageView) convertView.findViewById(R.id.taskPriority);
+
         // Populate the data into the template view using the data object
 
         taskDesc.setText(task.description);
         taskTitle.setText(task.title);
         taskDueDate.setText(task.dueDate);
+        updatePriorityImage(taskPriorityIcon, task.priority);
         // Return the completed view to render on screen
         return convertView;
     }
+
+    private void updatePriorityImage(ImageView priorityIcon, int priority) {
+        if (priority == Task.PRIORITY_LOW) priorityIcon.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.lowPriorityIcon));
+        else if (priority == Task.PRIORITY_MEDIUM) priorityIcon.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.medPriorityIcon));
+        else if (priority == Task.PRIORITY_HIGH) priorityIcon.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.highPriorityIcon));
+        else priorityIcon.setImageResource(android.R.drawable.btn_star);
+    }
+
 
 }

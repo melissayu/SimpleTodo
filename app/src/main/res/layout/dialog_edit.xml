@@ -1,21 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:inputType="textCapSentences"
-        android:ems="10"
-        android:id="@+id/dialogEditTitle"
-        android:hint="Title"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="22dp"
-        android:textSize="24sp" />
 
     <Button
         android:text="Save"
@@ -45,7 +33,36 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/dialogDatePicker"
-        android:layout_alignParentBottom="true"
+        android:layout_below="@+id/dialogEditDesc"
         android:layout_centerHorizontal="true" />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textCapSentences"
+        android:ems="10"
+        android:id="@+id/dialogEditTitle"
+        android:hint="Title"
+        android:layout_marginTop="21dp"
+        android:textSize="24sp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_toLeftOf="@+id/dialogPriority"
+        android:layout_toStartOf="@+id/dialogPriority" />
+
+    <ImageButton
+        app:srcCompat="@drawable/alert_icon"
+        android:id="@+id/dialogPriority"
+        android:background="@android:color/holo_red_light"
+        android:padding="5dp"
+        android:cropToPadding="true"
+        android:layout_height="36dp"
+        android:layout_width="36dp"
+        android:layout_alignTop="@+id/dialogEditTitle"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginRight="15dp"
+        android:scaleType="fitXY" />
 
 </RelativeLayout>
