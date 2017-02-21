@@ -36,12 +36,13 @@ The following **additional** features are implemented:
 
 Here's a walkthrough of implemented user stories:
 
-<img src='https://dl.dropboxusercontent.com/u/3465192/2017_02_06_20_27_09.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' />
+<img src='https://dl.dropboxusercontent.com/u/3465192/2017_02_20_20_11_18.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' />
 
 * Gif direct link if above doesn't work: https://dl.dropboxusercontent.com/u/3465192/2017_02_06_20_27_09.gif
 * Updated gif with edit as modal: https://dl.dropboxusercontent.com/u/3465192/2017_02_06_22_40_06.gif
 * Video link in case gif doesn't work: https://www.youtube.com/watch?v=SN6TMG9N5vc
 * Updated gif with due date picker implemented: https://dl.dropboxusercontent.com/u/3465192/2017_02_16_01_00_09.gif
+* Updated gif with priority selection and sorting by fields implemented: https://dl.dropboxusercontent.com/u/3465192/2017_02_20_20_11_18.gif
 
 ## Notes
 
@@ -50,6 +51,8 @@ Trying to capture video and upload the gif was harder than making the app! I hav
 Updated to use SQLite DB and custom adapter to display the list.
 
 Added columns to SQLite DB (with DBFlow) with a DB Migration, added description and due date columns. Updated add/edit dialog and list adapter UI to display the task title, description, and due date.
+
+Added additional Priority column to DB and updated UI to allow changing the priority level by tapping on the priority icon. Added Sort by spinner at the top of the list view to change how the list is sorted.
 
 ## License
 
