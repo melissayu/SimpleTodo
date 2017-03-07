@@ -2,6 +2,7 @@ package com.melmel.android.simpletodo;
 
 import android.content.Context;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.res.ResourcesCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,12 +17,15 @@ import java.util.ArrayList;
  */
 
 public class TaskAdapter extends ArrayAdapter<Task> {
+    Context context;
+
     private static class ViewHolder {
         private TextView itemView;
     }
 
     public TaskAdapter(Context context, ArrayList<Task> items) {
         super(context, 0, items);
+        this.context = context;
     }
 
     @Override
@@ -43,7 +47,14 @@ public class TaskAdapter extends ArrayAdapter<Task> {
         taskDesc.setText(task.description);
         taskTitle.setText(task.title);
         taskDueDate.setText(task.dueDate);
-        updatePriorityImage(taskPriorityIcon, task.priority);
+
+        if (task.status == Task.STATUS_INCOMPLETE) {
+            taskPriorityIcon.setImageDrawable(ResourcesCompat.getDrawable(context.getResources(), R.drawable.alert_icon, null));
+            updatePriorityImage(taskPriorityIcon, task.priority);
+        } else if (task.status == Task.STATUS_COMPLETE) {
+            taskPriorityIcon.setImageDrawable(ResourcesCompat.getDrawable(context.getResources(), R.drawable.check_icon, null));
+            taskPriorityIcon.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.completedStatusIcon));
+        }
         // Return the completed view to render on screen
         return convertView;
     }

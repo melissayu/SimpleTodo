@@ -12,7 +12,7 @@ import com.raizlabs.android.dbflow.sql.migration.AlterTableMigration;
 public class MyDatabase {
     public static final String NAME = "MyDataBase";
 
-    public static final int VERSION = 2;
+    public static final int VERSION = 3;
 
     @Migration(version = 2, database = MyDatabase.class)
     public static class Migration2 extends AlterTableMigration<Task> {
@@ -25,6 +25,18 @@ public class MyDatabase {
         public void onPreMigrate() {
             addColumn(SQLiteType.INTEGER, "priority");
             addColumn(SQLiteType.TEXT, "dueDate");
+        }
+    }
+    @Migration(version = 3, database = MyDatabase.class)
+    public static class Migration3 extends AlterTableMigration<Task> {
+
+        public Migration3(Class<Task> table) {
+            super(table);
+        }
+
+        @Override
+        public void onPreMigrate() {
+            addColumn(SQLiteType.INTEGER, "status");
         }
     }
 

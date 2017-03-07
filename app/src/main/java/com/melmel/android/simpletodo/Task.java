@@ -36,6 +36,11 @@ public class Task extends BaseModel {
     @Column
     String dueDate;
 
+    @Column
+    int status;
+
+
+
     @Override
     public String toString() {
         return this.description;
@@ -44,6 +49,9 @@ public class Task extends BaseModel {
     public final static int PRIORITY_HIGH = 3;
     public final static int PRIORITY_MEDIUM = 2;
     public final static int PRIORITY_LOW = 1;
+
+    public final static int STATUS_INCOMPLETE = 4;
+    public final static int STATUS_COMPLETE = 5;
 
     public void setDescription(String desc) {
         this.description = desc;
@@ -56,6 +64,9 @@ public class Task extends BaseModel {
     }
     public void setPriority(int priorityLevel) {
         this.priority = priorityLevel;
+    }
+    public void setStatus(int status) {
+        this.status = status;
     }
 
     public void setId(int id) {

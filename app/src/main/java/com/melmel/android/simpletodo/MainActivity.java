@@ -1,8 +1,11 @@
 package com.melmel.android.simpletodo;
 
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.res.ResourcesCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
@@ -13,7 +16,6 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Spinner;
-import android.widget.Toast;
 
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 
@@ -30,11 +32,12 @@ import static com.melmel.android.simpletodo.Task.parseDateString;
 import static com.raizlabs.android.dbflow.config.FlowManager.getContext;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
-    ArrayList<Task> tasks;
+    ArrayList<Task> tasks = new ArrayList<Task>();
     ArrayAdapter<Task> taskItemsAdapter;
     ListView lvItems;
     int priorityLevel;
     String currentSortBy;
+    Boolean viewingCompletedTasks;
 
     private final int REQUEST_CODE = 20;
 
@@ -42,6 +45,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        viewingCompletedTasks = false;
 
         lvItems = (ListView)findViewById(R.id.lvItems);
         lvItems.setEmptyView(findViewById(R.id.empty_list_view));
@@ -62,6 +67,30 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         spinner.setAdapter(dataAdapter);
         spinner.setOnItemSelectedListener(this);
         currentSortBy = sortBy.get(0);
+
+        final Button viewCompletedButton = (Button) findViewById(R.id.btnViewCompleted);
+        viewCompletedButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (viewingCompletedTasks) { // we WERE viewing completed tasks.
+                    System.out.println("!!! now view incomplete");
+                    //now change to view incomplete
+                    readItems();
+                    sortTasks();
+                    viewingCompletedTasks = false;
+                    viewCompletedButton.setText("View Completed");
+
+                } else {
+                    System.out.println("!!! now view completed");
+                    readCompletedTasks();
+                    System.out.println("!!! tasks size"+ tasks.size());
+                    taskItemsAdapter.notifyDataSetChanged();
+                    viewingCompletedTasks = true;
+                    viewCompletedButton.setText("View Incomplete");
+                }
+            }
+        });
+
 
         setupListViewListener();
     }
@@ -113,18 +142,75 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 new AdapterView.OnItemLongClickListener() {
                     @Override
                     public boolean onItemLongClick(AdapterView<?> adapter, View item, int pos, long id) {
-                        Task t = tasks.get(pos);
+
+                        final int position = pos;
+                        final Task t = tasks.get(position);
+                        /*
                         tasks.remove(pos);
-//                        taskItemsAdapter.notifyDataSetChanged();
                         sortTasks();
                         Task task = SQLite.select()
                                 .from(Task.class)
-                                .where(Task_Table.description.eq(t.description))
+                                .where(Task_Table.id.eq(t.id))
                                 .querySingle();
                         task.delete();
 
                         Toast.makeText(getApplicationContext(), R.string.item_deleted, Toast.LENGTH_SHORT).show();
+                        */
 
+
+                        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+                                MainActivity.this);
+
+                        // set title
+                        alertDialogBuilder.setTitle(t.title);
+
+                        // set dialog message
+                        alertDialogBuilder
+                                .setCancelable(true)
+//                                    .setPositiveButton("Done", new DialogInterface.OnClickListener() {
+//                                        public void onClick(DialogInterface dialog, int id) {
+//                                            t.setStatus(Task.STATUS_COMPLETE);
+//                                            t.save();
+//                                            readItems();
+//                                            sortTasks();
+//                                            dialog.dismiss();
+//                                        }
+//                                    })
+                                .setNegativeButton("Delete", new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        tasks.remove(position);
+                                        t.delete();
+                                        sortTasks();
+                                        dialog.dismiss();
+                                    }
+                                });
+
+                        if(t.status == Task.STATUS_COMPLETE) {
+                            alertDialogBuilder.setPositiveButton("Not done", new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int id) {
+                                            t.setStatus(Task.STATUS_INCOMPLETE);
+                                            t.save();
+                                            readCompletedTasks();
+                                            taskItemsAdapter.notifyDataSetChanged();
+                                            dialog.dismiss();
+                                        }
+                                    });
+                        } else {
+                            alertDialogBuilder.setPositiveButton("Done", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    t.setStatus(Task.STATUS_COMPLETE);
+                                    t.save();
+                                    readItems();
+                                    sortTasks();
+                                    dialog.dismiss();
+                                }
+                            });
+                        }
+                        // create alert dialog
+                        AlertDialog alertDialog = alertDialogBuilder.create();
+
+                        // show it
+                        alertDialog.show();
                         return true;
                     }
                 }
@@ -169,18 +255,22 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
                         final ImageButton priorityLevelButton = (ImageButton) dialog.findViewById(R.id.dialogPriority);
 
-                        //If no priority had been set, default to LOW
-                        priorityLevel = t.priority == 0 ? Task.PRIORITY_LOW : t.priority;
-                        updatePriorityImage(priorityLevelButton);
+                        if (t.status == Task.STATUS_INCOMPLETE) {
+                            //If no priority had been set, default to LOW
+                            priorityLevel = t.priority == 0 ? Task.PRIORITY_LOW : t.priority;
+                            updatePriorityImage(priorityLevelButton);
 
-                        priorityLevelButton.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                changePriorityLevel();
-                                updatePriorityImage(priorityLevelButton);
-                            }
-                        });
-
+                            priorityLevelButton.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    changePriorityLevel();
+                                    updatePriorityImage(priorityLevelButton);
+                                }
+                            });
+                        } else {
+                            priorityLevelButton.setImageDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.check_icon, null));
+                            priorityLevelButton.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.completedStatusIcon));
+                        }
                         Button dialogButton = (Button) dialog.findViewById(R.id.dialogSave);
                         dialogButton.setOnClickListener(new View.OnClickListener() {
                             @Override
@@ -201,7 +291,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                                 dialog.dismiss();
                             }
                         });
-
+                        dialog.setCanceledOnTouchOutside(true);//doesn't work?
                         dialog.show();
 
                         return;
@@ -279,6 +369,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 t.setDescription(taskDesc);
                 t.setDueDate(Task.datePickerToString(dueDate));
                 t.setPriority(priorityLevel);
+                t.setStatus(Task.STATUS_INCOMPLETE);
                 t.save();
                 tasks.add(t);
 //                taskItemsAdapter.notifyDataSetChanged();
@@ -292,10 +383,19 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     private void readItems() {
-        tasks = (ArrayList<Task>)SQLite.select().
-                from(Task.class).queryList();
-//        tasks = (ArrayList<Task>)SQLite.select().
-//                from(Task.class).orderBy(Task_Table.priority, true).queryList();
+        tasks.clear();
+        tasks.addAll((ArrayList<Task>)SQLite.select().
+//                from(Task.class).queryList();
+            from(Task.class).where(Task_Table.status.eq(Task.STATUS_INCOMPLETE)).queryList());
+        System.out.println("!!! incomplete tasks: "+tasks.toString());
+    }
+
+
+    private void readCompletedTasks() {
+        tasks.clear();
+        tasks.addAll((ArrayList<Task>)SQLite.select().
+            from(Task.class).where(Task_Table.status.eq(Task.STATUS_COMPLETE)).queryList());
+            System.out.println("!!! completed tasks: "+tasks.toString());
 
     }
 
@@ -306,6 +406,5 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         newTask.setDueDate(dueDate);
         newTask.save();
     }
-
 
 }

@@ -6,4 +6,5 @@
     <color name="highPriorityIcon">#f94f4c</color>
     <color name="medPriorityIcon">#f9ca9b</color>
     <color name="lowPriorityIcon">#ebefbf</color>
+    <color name="completedStatusIcon">#cccccc</color>
 </resources>
